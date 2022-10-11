@@ -11,13 +11,15 @@ import java.util.Collections;
 import java.util.logging.Logger;
 
 public class Round {
+
+    private final int betPerRound; // Strictly used to calculate bet on the pot per round
     Logger logger = Logger.getLogger(Round.class.getName());
     int numberOfPlayers;
     int roundNumber;
     ArrayList<Player> players;
     Deck deck;
     Banker banker;
-    private final int betPerRound; // Strictly used to calculate bet on the pot per round
+    private int currentPlayer = 0;
     private int pot; // The total amount of money in the pot
 
     public Round(int numberOfPlayers, int roundNumber, int betPerRound) {
@@ -25,13 +27,51 @@ public class Round {
         this.numberOfPlayers = numberOfPlayers;
         this.betPerRound = betPerRound;
         this.banker = new Banker();
+        this.deck = new Deck(289357, 312); // 6 decks of cards
+
+        dealCardsToPlayers(gameState.DEALING);
 
         logger.info("Round initiated with " + numberOfPlayers + " players.");
         logger.info("Round number: " + roundNumber);
         logger.info("Minimum bet per round: " + betPerRound);
     }
 
-    public void addPlayers(ArrayList<Player> players) {
+    public Player getCurrentPlayer() {
+        return players.get(currentPlayer);
+    }
+
+    private void dealCardsToPlayers(gameState state) {
+        if (state == gameState.DEALING) {
+            logger.info("Dealing cards to players.");
+            Card bankerFaceDownCard = deck.getRandomCard();
+            logger.info("Banker's face down card is " + bankerFaceDownCard.toString());
+            Card bankerFaceUpCard = deck.getRandomCardFaceUp();
+            logger.info("Banker's face up card is " + bankerFaceUpCard.toString());
+            banker.hand.add(bankerFaceDownCard);
+            logger.info("Added Card 1 to banker's hand.");
+            banker.hand.add(bankerFaceUpCard);
+            logger.info("Added Card 2 to banker's hand.");
+
+            for (int i = 0; i < numberOfPlayers; i++) {
+                // use get random card
+                Card card = deck.getRandomCard();
+                players.get(i).hand.add(card);
+            }
+        }
+
+        state = gameState.HITTING;
+        logger.info("Cards dealt to players and banker.");
+    }
+
+    private void nextPlayer() {
+        if (currentPlayer < numberOfPlayers) {
+            currentPlayer++;
+        } else {
+            currentPlayer = 0;
+        }
+    }
+
+    private void addPlayers(ArrayList<Player> players) {
         this.players = players;
         logger.info("Players added to round.");
     }
@@ -41,7 +81,7 @@ public class Round {
         logger.info("Player: " + player.name + " was removed from round.");
     }
 
-    public void nextRound() {
+    private void nextRound() {
         this.roundNumber++;
     }
 
@@ -113,6 +153,7 @@ public class Round {
     static class Banker {
         String name;
         int score;
+        ArrayList<Card> hand;
         boolean isTurn;
         int[] balance;
         boolean isWinner = false;

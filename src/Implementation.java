@@ -1,50 +1,59 @@
 import java.util.logging.Logger;
+import java.util.Scanner;
 
-public class Implementation
-{
+public class Implementation {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Logger logger = Logger.getLogger(Implementation.class.getName());
+        System.out.println("Welcome to the game of 31!");
+        System.out.println("Please enter the number of players: ");
+        int numPlayers = scanner.nextInt();
+        System.out.println("Please enter the minimum bet: ");
+        int MINIMUM_BET = scanner.nextInt();
+        System.out.println("Please enter the maximum bet: ");
+        int MAXIMUM_BET = scanner.nextInt();
+        int roundNumber = 1;
+        for (int i = 0; i < numPlayers; i++) {
+            System.out.println("Please enter the name of player " + (i + 1) + ": ");
+            String name = scanner.next();
+            Round.Player player = new Round.Player(i, name);
+            System.out.println("Player " + (i + 1) + " is " + player.name + " and has ID" + player.id);
+        }
 
-    /*
-    * Each game consists of N rounds
-    * Each round is represented by a Round object
-     */
-    class ruleSet implements Round.ruleSet
-    {
-        Logger logger = Logger.getLogger(ruleSet.class.getName());
-        Round round;
-        public String dealCardsToPlayers(Round.gameState state)
-        {
-            if (state == Round.gameState.DEALING)
-            {
-
-                //
+        /*
+        Example input to test:
+3
+10
+100
+Abhinav
+Puja
+         */
 
 
-                for (int i = 0; i < round.numberOfPlayers; i++)
-                {
-                    // use get random card
-                    Round.Card card = round.deck.getRandomCard();
-                    round.players.get(i).hand.add(card);
-                }
+
+        Round round = new Round(numPlayers, roundNumber, MINIMUM_BET);
+
+        while (true) {
+            logger.info("Round initiated with " + numPlayers + " players.");
+            logger.info("Round number: " + roundNumber);
+            logger.info("Minimum bet per round: " + MINIMUM_BET);
+            // print everyone's cards
+            for (int i = 0; i < numPlayers; i++) {
+                System.out.println("Player " + (i + 1) + " has " + round.players.get(i).hand.get(0).toString() + " and " + round.players.get(i).hand.get(1).toString());
             }
 
-            state = Round.gameState.HITTING;
-            return "Dealt 2 cards to each player";
-        }
-        public void hit()
-        {
-        }
+            // print banker cards
+            System.out.println("Banker has " + round.banker.hand.get(0).toString() + " and " + round.banker.hand.get(1).toString());
 
-        public void stand()
-        {
-        }
+            for(int i = 0; i < numPlayers; i++) {
+                Round.Player player = round.getCurrentPlayer();
+                System.out.println("It is " + player.name + "'s turn.");
 
-        public void raise()
-        {
-        }
-    }
+            }
 
-    public static void main(String[] args)
-    {
-        System.out.println("Hey");
+            roundNumber++;
+
+            System.out.println("Continue? (y/n)");
+        }
     }
 }
