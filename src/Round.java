@@ -33,6 +33,7 @@ public class Round {
         this.deck = new Deck(289357, 312); // 6 decks of cards
         Round.players = players;
 
+        System.out.println("player are: " + Round.players.get(0).name + " and " + Round.players.get(1).name);
         // dealCardsToPlayers(gameState.DEALING, players);
 
         logger.info("Round initiated with " + numberOfPlayers + " players.");
