@@ -12,24 +12,28 @@ import java.util.logging.Logger;
 
 public class Round {
 
+    static ArrayList<Player> players;
+    static Banker banker;
     private final int betPerRound; // Strictly used to calculate bet on the pot per round
     Logger logger = Logger.getLogger(Round.class.getName());
     int numberOfPlayers;
     int roundNumber;
-    ArrayList<Player> players;
     Deck deck;
-    Banker banker;
     private int currentPlayer = 0;
     private int pot; // The total amount of money in the pot
 
-    public Round(int numberOfPlayers, int roundNumber, int betPerRound) {
+    public Round(int numberOfPlayers, int roundNumber, int betPerRound, ArrayList<Player> players) {
         this.roundNumber = roundNumber;
         this.numberOfPlayers = numberOfPlayers;
+        logger.info("Round initiated with " + numberOfPlayers + " players.");
         this.betPerRound = betPerRound;
-        this.banker = new Banker();
+        logger.info("Round number: " + roundNumber + " And bet per round: " + betPerRound);
+        banker = new Banker("Banker");
+        logger.info("Banker is " + banker.name);
         this.deck = new Deck(289357, 312); // 6 decks of cards
+        Round.players = players;
 
-        dealCardsToPlayers(gameState.DEALING);
+        // dealCardsToPlayers(gameState.DEALING, players);
 
         logger.info("Round initiated with " + numberOfPlayers + " players.");
         logger.info("Round number: " + roundNumber);
@@ -40,7 +44,7 @@ public class Round {
         return players.get(currentPlayer);
     }
 
-    private void dealCardsToPlayers(gameState state) {
+    public void dealCardsToPlayers(gameState state, ArrayList<Player> players) {
         if (state == gameState.DEALING) {
             logger.info("Dealing cards to players.");
             Card bankerFaceDownCard = deck.getRandomCard();
@@ -51,11 +55,16 @@ public class Round {
             logger.info("Added Card 1 to banker's hand.");
             banker.hand.add(bankerFaceUpCard);
             logger.info("Added Card 2 to banker's hand.");
-
+            int numberOfPlayers = players.size();
             for (int i = 0; i < numberOfPlayers; i++) {
-                // use get random card
-                Card card = deck.getRandomCard();
-                players.get(i).hand.add(card);
+                Card playerFaceDownCard = deck.getRandomCard();
+                logger.info("Player " + (i + 1) + "'s face down card is " + playerFaceDownCard.toString());
+                Card playerFaceUpCard = deck.getRandomCardFaceUp();
+                logger.info("Player " + (i + 1) + "'s face up card is " + playerFaceUpCard.toString());
+                players.get(i).hand.add(playerFaceDownCard);
+                logger.info("Added Card 1 to player " + (i + 1) + "'s hand.");
+                players.get(i).hand.add(playerFaceUpCard);
+                logger.info("Added Card 2 to player " + (i + 1) + "'s hand.");
             }
         }
 
@@ -72,12 +81,12 @@ public class Round {
     }
 
     private void addPlayers(ArrayList<Player> players) {
-        this.players = players;
+        Round.players = players;
         logger.info("Players added to round.");
     }
 
     public void removePlayer(Player player) {
-        this.players.remove(player);
+        players.remove(player);
         logger.info("Player: " + player.name + " was removed from round.");
     }
 
@@ -162,10 +171,7 @@ public class Round {
             this.name = name;
             this.score = 0;
             this.isTurn = false;
-        }
-
-        public Banker() {
-            new Banker("Banker");
+            this.hand = new ArrayList<Card>();
         }
     }
 
