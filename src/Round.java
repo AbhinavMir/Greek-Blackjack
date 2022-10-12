@@ -8,7 +8,6 @@ Player and Banker have been separated into their own classes - for ease of use.
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Random;
 import java.util.logging.Logger;
 
 public class Round {
@@ -21,7 +20,7 @@ public class Round {
     int numberOfPlayers;
     int roundNumber;
     private int currentPlayer = 0;
-    private int pot; // The total amount of money in the pot
+    private int pot;
 
     public Round(int numberOfPlayers, int roundNumber, int betPerRound, ArrayList<Player> players) {
         this.roundNumber = roundNumber;
@@ -59,14 +58,8 @@ public class Round {
             logger.info("Added Card 2 to banker's hand.");
             int numberOfPlayers = players.size();
             for (int i = 0; i < numberOfPlayers; i++) {
-                Card playerFaceDownCard = deck.getRandomCard();
-                logger.info("Player " + (i + 1) + "'s face down card is " + playerFaceDownCard.toString());
-                Card playerFaceUpCard = deck.getRandomCardFaceUp();
-                logger.info("Player " + (i + 1) + "'s face up card is " + playerFaceUpCard.toString());
-                players.get(i).hand.add(playerFaceDownCard);
-                logger.info("Added Card 1 to player " + (i + 1) + "'s hand.");
-                players.get(i).hand.add(playerFaceUpCard);
-                logger.info("Added Card 2 to player " + (i + 1) + "'s hand.");
+                players.get(i).hand.add(deck.getRandomCard());
+                players.get(i).hand.add(deck.getRandomCard());
             }
         }
 
@@ -176,6 +169,7 @@ public class Round {
         }
 
         public int[] calculateHandValue(ArrayList<Card> hand) {
+            // calculate value if face up
             int[] handValue = new int[2];
             for (Card card : hand) {
                 // card.value is a String, so convert it if it is a number, if ace then 1 and 11, if K, Q, J then 10
@@ -185,6 +179,9 @@ public class Round {
                 } else if (card.getValue().equals("K") || card.getValue().equals("Q") || card.getValue().equals("J")) {
                     handValue[0] += 10;
                     handValue[1] += 10;
+                } else if (card.getValue().equals("[HIDDEN]")) {
+                    handValue[0] += 0;
+                    handValue[1] += 0;
                 } else {
                     handValue[0] += Integer.parseInt(card.getValue());
                     handValue[1] += Integer.parseInt(card.getValue());
@@ -192,6 +189,16 @@ public class Round {
             }
 
             return handValue;
+        }
+
+        public void printHand() {
+            for (Card card : hand) {
+                if (card.getState() == CardState.FACE_UP) {
+                    System.out.println(card);
+                } else {
+                    System.out.println("[HIDDEN]");
+                }
+            }
         }
     }
 
@@ -203,6 +210,7 @@ public class Round {
         private final String value;
         public CardState state;
         Player owner;
+
         public Card(String suit, String value) {
             this.suit = suit;
             this.value = value;
@@ -219,11 +227,19 @@ public class Round {
         }
 
         public String getSuit() {
-            return suit;
+            if (this.state == CardState.FACE_DOWN) {
+                return "[HIDDEN]";
+            } else {
+                return suit;
+            }
         }
 
         public String getValue() {
-            return value;
+            if (this.state == CardState.FACE_DOWN) {
+                return "[HIDDEN]";
+            } else {
+                return value;
+            }
         }
 
         public CardState getState() {
@@ -231,11 +247,7 @@ public class Round {
         }
 
         public String toString() {
-            return String.format("%s of %s", value, suit);
-        }
-
-        public Card getCard() {
-            return this;
+            return String.format("%s of %s", getValue(), getSuit());
         }
     }
 
@@ -304,6 +316,10 @@ public class Round {
             for (int i = 0; i < size; i++) {
                 System.out.println(cards.get(i));
             }
+        }
+
+        public int size() {
+            return size;
         }
     }
 

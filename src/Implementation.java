@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 public class Implementation {
     public static void main(String[] args) {
+        System.out.println("STARTING...");
 
         Scanner scanner = new Scanner(System.in);
         Logger logger = Logger.getLogger(Implementation.class.getName());
@@ -17,15 +18,12 @@ public class Implementation {
             logger.setLevel(Level.INFO);
         } else if (args.length > 0 && args[0].equals("--off")) {
             logger.setLevel(Level.OFF);
-        } else {
-            args[0] = "--off";
         }
 
         // write a function to read args and add them to numplayers etc in order else take input
         // from user
-        int numPlayers = 0;
-        int MINIMUM_BET = 0;
-        int MAXIMUM_BET = 0;
+        int numPlayers;
+        int MINIMUM_BET;
 
         if (args.length > 1) {
             numPlayers = Integer.parseInt(args[1]);
@@ -41,27 +39,23 @@ public class Implementation {
             MINIMUM_BET = scanner.nextInt();
         }
 
-        if (args.length > 3) {
-            MAXIMUM_BET = Integer.parseInt(args[3]);
-        } else {
-            System.out.println("Enter maximum bet: ");
-            MAXIMUM_BET = scanner.nextInt();
-        }
-
         ArrayList<Round.Player> players = new ArrayList<Round.Player>();
 
         int roundNumber = 1;
         for (int i = 0; i < numPlayers; i++) {
             System.out.println("Please enter the name of player " + (i + 1) + ": ");
             String name = scanner.next();
+            System.out.println("Please enter player's buy in");
+            int balance = scanner.nextInt();
             Round.Player player = new Round.Player(i + 1, name);
-            System.out.println("Player " + (i + 1) + " is " + player.name + " and has ID" + player.id);
+            player.balance = balance;
             players.add(player);
+            System.out.println("Player " + (i + 1) + " is " + player.name + " and has ID" + player.id);
+            System.out.println("Player " + (i + 1) + " has a balance of " + player.balance);
         }
 
         Round round = new Round(numPlayers, roundNumber, MINIMUM_BET, players);
         round.dealCardsToPlayers(Round.gameState.DEALING, players);
-        // sout all details about the round
         System.out.println("player are: " + Round.players.get(0).name + " and " + Round.players.get(1).name);
         System.out.println("Banker is " + Round.banker.name);
 
@@ -69,9 +63,10 @@ public class Implementation {
             logger.info("Round initiated with " + numPlayers + " players.");
             logger.info("Round number: " + roundNumber);
             logger.info("Minimum bet per round: " + MINIMUM_BET);
-            // print everyone's cards
+
+            // Print the cards of the player - no need to check for face downs
             for (int i = 0; i < numPlayers; i++) {
-                System.out.print("Player " + (i + 1) + " has " + Round.players.get(i).hand.get(0).toString() + " and " + Round.players.get(i).hand.get(1).toString());
+                System.out.println("Player " + (i + 1) + " has " + Round.players.get(i).hand.get(0).toString() + " and " + Round.players.get(i).hand.get(1).toString());
             }
 
             for (int i = 0; i < numPlayers; i++) {
@@ -100,6 +95,7 @@ public class Implementation {
 
             // flip banker's other card
 
+
             roundNumber++;
 
             // check if banker has a minimum of 17
@@ -113,14 +109,13 @@ public class Implementation {
                 Round.Card newCard = Round.deck.getRandomCard();
                 Round.banker.hand.add(newCard);
                 System.out.println("Banker drew a " + newCard.toString());
-                System.out.println("Banker's new hand is: " + Round.banker.hand.get(0).toString() + " and " + Round.banker.hand.get(1).toString() + " and " + Round.banker.hand.get(2).toString());
+                Round.banker.printHand();
                 System.out.println("Total value of hand: " + Round.banker.calculateHandValue(Round.banker.hand)[0] + " or " + Round.banker.calculateHandValue(Round.banker.hand)[1]);
             } else {
                 System.out.println("Banker hand value is " + Round.banker.calculateHandValue(Round.banker.hand)[0]);
             }
 
             System.out.println("Checking for players below Banker's hand value...");
-
         }
     }
 }
