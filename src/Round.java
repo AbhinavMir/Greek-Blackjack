@@ -19,7 +19,7 @@ public class Round {
     Logger logger = Logger.getLogger(Round.class.getName());
     int numberOfPlayers;
     int roundNumber;
-    Deck deck;
+    static Deck deck;
     private int currentPlayer = 0;
     private int pot; // The total amount of money in the pot
 
@@ -136,8 +136,6 @@ public class Round {
 
         public int[] calculateHandValue(ArrayList<Card> hand) {
             int[] handValue = new int[2];
-            // if hand has an ace, then the value is 1 or 11
-            // if hand has no ace, then the value is the sum of the cards
             for (Card card : hand) {
                 // card.value is a String, so convert it if it is a number, if ace then 1 and 11, if K, Q, J then 10
                 if (card.getValue().equals("A")) {

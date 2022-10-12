@@ -15,7 +15,7 @@ public class Implementation {
             logger.setLevel(Level.SEVERE);
         } else if (args.length > 0 && args[0].equals("--informational")) {
             logger.setLevel(Level.INFO);
-        } else {
+        } else if (args.length > 0 && args[0].equals("--off")) {
             logger.setLevel(Level.OFF);
         }
 
@@ -76,11 +76,27 @@ public class Implementation {
             System.out.println("Banker has " + Round.banker.hand.get(0).toString() + " and " + Round.banker.hand.get(1).toString());
 
             for (int i = 0; i < numPlayers; i++) {
-                Round.Player player = round.getCurrentPlayer();
+                Round.Player player = Round.players.get(i);
                 System.out.println("It is " + player.name + "'s turn.");
                 System.out.println("Current hand: " + player.hand.get(0).toString() + " and " + player.hand.get(1).toString());
                 System.out.println("Total value of hand: " + player.calculateHandValue(player.hand)[0]);
-                String action = scanner.next();
+                String choice;
+                while (true) {
+                    System.out.println("Would you like to hit or stand? (h/s)");
+                    choice = scanner.next();
+                    if (choice.equals("h")) {
+                        Round.Card newCard = Round.deck.getRandomCard();
+                        player.hand.add(newCard);
+                        System.out.println("You drew a " + newCard.toString());
+                        System.out.println("Your new hand is: " + player.hand.get(0).toString() + " and " + player.hand.get(1).toString() + " and " + player.hand.get(2).toString());
+                        System.out.println("Total value of hand: " + player.calculateHandValue(player.hand)[0] + " or " + player.calculateHandValue(player.hand)[1]);
+                    } else if (choice.equals("s")) {
+                        System.out.println("You have chosen to stand.");
+                        break;
+                    } else {
+                        System.out.println("Invalid choice.");
+                    }
+                }
             }
 
             roundNumber++;
