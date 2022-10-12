@@ -8,6 +8,7 @@ Player and Banker have been separated into their own classes - for ease of use.
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Random;
 import java.util.logging.Logger;
 
 public class Round {
@@ -30,7 +31,7 @@ public class Round {
         logger.info("Round number: " + roundNumber + " And bet per round: " + betPerRound);
         banker = new Banker("Banker");
         logger.info("Banker is " + banker.name);
-        this.deck = new Deck(289357, 312); // 6 decks of cards
+        this.deck = new Deck(312); // 6 decks of cards
         Round.players = players;
 
         System.out.println("player are: " + Round.players.get(0).name + " and " + Round.players.get(1).name);
@@ -133,24 +134,25 @@ public class Round {
             logger.info("Player: " + name + " folded.");
         }
 
-        public void calculateHandValue(Boolean A) {
-            int handValue = 0;
-            for (Card card : this.hand) {
-                handValue += card.getValue();
+        public int[] calculateHandValue(ArrayList<Card> hand) {
+            int[] handValue = new int[2];
+            // if hand has an ace, then the value is 1 or 11
+            // if hand has no ace, then the value is the sum of the cards
+            for (Card card : hand) {
+                // card.value is a String, so convert it if it is a number, if ace then 1 and 11, if K, Q, J then 10
+                if (card.getValue().equals("A")) {
+                    handValue[0] += 1;
+                    handValue[1] += 11;
+                } else if (card.getValue().equals("K") || card.getValue().equals("Q") || card.getValue().equals("J")) {
+                    handValue[0] += 10;
+                    handValue[1] += 10;
+                } else {
+                    handValue[0] += Integer.parseInt(card.getValue());
+                    handValue[1] += Integer.parseInt(card.getValue());
+                }
             }
-            if (A) {
-                handValue += 10;
-            }
-            this.handValue = handValue;
-            logger.info("Player: " + name + " hand value: " + handValue);
-        }
 
-        public void calculateHandValue() {
-            int handValue = 0;
-            for (Card card : this.hand) {
-                handValue += card.getValue();
-            }
-            this.handValue = handValue;
+            return handValue;
         }
 
         public void checkBust() {
@@ -182,11 +184,11 @@ public class Round {
         public static final int MIN_NUMBER_OF_PLAYERS = 2;
 
         private final String suit;
-        private final int value;
+        private final String value;
         public CardState state;
         Player owner;
 
-        public Card(String suit, int value) {
+        public Card(String suit, String value) {
             this.suit = suit;
             this.value = value;
             this.state = CardState.FACE_DOWN;
@@ -196,7 +198,7 @@ public class Round {
             return suit;
         }
 
-        public int getValue() {
+        public String getValue() {
             return value;
         }
 
@@ -217,8 +219,8 @@ public class Round {
         private final ArrayList<Card> cards;
         private int size;
 
-        public Deck(int RANDOM_SEED, int size) {
-            cards = createDeck(RANDOM_SEED, size);
+        public Deck(int size) {
+            cards = createDeck(size);
             size = 0;
         }
 
@@ -246,14 +248,18 @@ public class Round {
             size--;
         }
 
-        private ArrayList<Card> createDeck(int RANDOM_SEED, int size) {
+        private ArrayList<Card> createDeck(int size) {
             ArrayList<Card> cards = new ArrayList<Card>();
             String[] suits = {"Hearts", "Diamonds", "Clubs", "Spades"};
-            for (int i = 0; i < suits.length; i++) {
-                for (int j = 1; j <= 13; j++) {
-                    cards.add(new Card(suits[i], j));
+            String[] values = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
+            for (int i = 0; i < size; i++) {
+                for (String suit : suits) {
+                    for (String value : values) {
+                        cards.add(new Card(suit, value));
+                    }
                 }
             }
+
             Collections.shuffle(cards);
             return cards;
         }
@@ -261,11 +267,6 @@ public class Round {
         /*
         @NOTE: This is a safer, casino-friendly method of creating a blackjack deck.
          */
-        private ArrayList<Card> createDeck() {
-            // generate a random number
-            int RANDOM_SEED = (int) (Math.random() * 1000);
-            return createDeck(RANDOM_SEED, 312);
-        }
 
         public int getSize() {
             return size;

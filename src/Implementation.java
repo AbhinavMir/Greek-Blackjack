@@ -78,12 +78,15 @@ public class Implementation {
             for (int i = 0; i < numPlayers; i++) {
                 Round.Player player = round.getCurrentPlayer();
                 System.out.println("It is " + player.name + "'s turn.");
-
+                System.out.println("Current hand: " + player.hand.get(0).toString() + " and " + player.hand.get(1).toString());
+                System.out.println("Total value of hand: " + player.calculateHandValue(player.hand)[0]);
+                String action = scanner.next();
             }
 
             roundNumber++;
 
             System.out.println("Continue? (y/n)");
+            String input = scanner.next();
         }
     }
 }
