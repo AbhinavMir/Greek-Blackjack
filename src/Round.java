@@ -15,11 +15,11 @@ public class Round {
 
     static ArrayList<Player> players;
     static Banker banker;
+    static Deck deck;
     private final int betPerRound; // Strictly used to calculate bet on the pot per round
     Logger logger = Logger.getLogger(Round.class.getName());
     int numberOfPlayers;
     int roundNumber;
-    static Deck deck;
     private int currentPlayer = 0;
     private int pot; // The total amount of money in the pot
 
@@ -31,7 +31,7 @@ public class Round {
         logger.info("Round number: " + roundNumber + " And bet per round: " + betPerRound);
         banker = new Banker("Banker");
         logger.info("Banker is " + banker.name);
-        this.deck = new Deck(312); // 6 decks of cards
+        deck = new Deck(312); // 6 decks of cards
         Round.players = players;
 
         System.out.println("player are: " + Round.players.get(0).name + " and " + Round.players.get(1).name);
@@ -174,22 +174,48 @@ public class Round {
             this.isTurn = false;
             this.hand = new ArrayList<Card>();
         }
+
+        public int[] calculateHandValue(ArrayList<Card> hand) {
+            int[] handValue = new int[2];
+            for (Card card : hand) {
+                // card.value is a String, so convert it if it is a number, if ace then 1 and 11, if K, Q, J then 10
+                if (card.getValue().equals("A")) {
+                    handValue[0] += 1;
+                    handValue[1] += 11;
+                } else if (card.getValue().equals("K") || card.getValue().equals("Q") || card.getValue().equals("J")) {
+                    handValue[0] += 10;
+                    handValue[1] += 10;
+                } else {
+                    handValue[0] += Integer.parseInt(card.getValue());
+                    handValue[1] += Integer.parseInt(card.getValue());
+                }
+            }
+
+            return handValue;
+        }
     }
 
     // create a card class
     public class Card {
         public static final int MAX_NUMBER_OF_PLAYERS = 8;
         public static final int MIN_NUMBER_OF_PLAYERS = 2;
-
         private final String suit;
         private final String value;
         public CardState state;
         Player owner;
-
         public Card(String suit, String value) {
             this.suit = suit;
             this.value = value;
             this.state = CardState.FACE_DOWN;
+        }
+
+        public String printCard(Card card) {
+            // check if card is face down
+            if (card.state == CardState.FACE_DOWN) {
+                return "[HIDDEN]";
+            } else {
+                return card.suit + " " + card.value;
+            }
         }
 
         public String getSuit() {

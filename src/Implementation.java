@@ -17,6 +17,8 @@ public class Implementation {
             logger.setLevel(Level.INFO);
         } else if (args.length > 0 && args[0].equals("--off")) {
             logger.setLevel(Level.OFF);
+        } else {
+            args[0] = "--off";
         }
 
         // write a function to read args and add them to numplayers etc in order else take input
@@ -69,11 +71,8 @@ public class Implementation {
             logger.info("Minimum bet per round: " + MINIMUM_BET);
             // print everyone's cards
             for (int i = 0; i < numPlayers; i++) {
-                System.out.println("Player " + (i + 1) + " has " + Round.players.get(i).hand.get(0).toString() + " and " + Round.players.get(i).hand.get(1).toString());
+                System.out.print("Player " + (i + 1) + " has " + Round.players.get(i).hand.get(0).toString() + " and " + Round.players.get(i).hand.get(1).toString());
             }
-
-            // print banker cards
-            System.out.println("Banker has " + Round.banker.hand.get(0).toString() + " and " + Round.banker.hand.get(1).toString());
 
             for (int i = 0; i < numPlayers; i++) {
                 Round.Player player = Round.players.get(i);
@@ -99,10 +98,29 @@ public class Implementation {
                 }
             }
 
+            // flip banker's other card
+
             roundNumber++;
 
-            System.out.println("Continue? (y/n)");
-            String input = scanner.next();
+            // check if banker has a minimum of 17
+            // if not, hit
+            // if yes, stand
+            // if yes, check if banker has a blackjack
+            // if yes, check if any player has a blackjack
+            // if yes, check if any player has a higher hand value
+
+            if (Round.banker.calculateHandValue(Round.banker.hand)[0] < 17 || Round.banker.calculateHandValue(Round.banker.hand)[1] < 17) {
+                Round.Card newCard = Round.deck.getRandomCard();
+                Round.banker.hand.add(newCard);
+                System.out.println("Banker drew a " + newCard.toString());
+                System.out.println("Banker's new hand is: " + Round.banker.hand.get(0).toString() + " and " + Round.banker.hand.get(1).toString() + " and " + Round.banker.hand.get(2).toString());
+                System.out.println("Total value of hand: " + Round.banker.calculateHandValue(Round.banker.hand)[0] + " or " + Round.banker.calculateHandValue(Round.banker.hand)[1]);
+            } else {
+                System.out.println("Banker hand value is " + Round.banker.calculateHandValue(Round.banker.hand)[0]);
+            }
+
+            System.out.println("Checking for players below Banker's hand value...");
+
         }
     }
 }
