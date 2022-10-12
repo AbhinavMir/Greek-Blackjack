@@ -15,13 +15,11 @@ public class Implementation {
         } else if (args.length > 0 && args[0].equals("--no-warnings")) {
             logger.setLevel(Level.SEVERE);
         } else if (args.length > 0 && args[0].equals("--informational")) {
-            logger.setLevel(Level.INFO);
+            Logger.getLogger("").setLevel(Level.INFO);
         } else if (args.length > 0 && args[0].equals("--off")) {
-            logger.setLevel(Level.OFF);
+            Logger.getLogger("").setLevel(Level.OFF);
         }
 
-        // write a function to read args and add them to numplayers etc in order else take input
-        // from user
         int numPlayers;
         int MINIMUM_BET;
 
@@ -50,72 +48,82 @@ public class Implementation {
             Round.Player player = new Round.Player(i + 1, name);
             player.balance = balance;
             players.add(player);
-            System.out.println("Player " + (i + 1) + " is " + player.name + " and has ID" + player.id);
-            System.out.println("Player " + (i + 1) + " has a balance of " + player.balance);
+            System.out.println("Player " + (i + 1) + " is " + player.name + " and has ID: " + player.id + " and balance: " + player.balance);
         }
 
         Round round = new Round(numPlayers, roundNumber, MINIMUM_BET, players);
         round.dealCardsToPlayers(Round.gameState.DEALING, players);
-        System.out.println("player are: " + Round.players.get(0).name + " and " + Round.players.get(1).name);
-        System.out.println("Banker is " + Round.banker.name);
 
         while (true) {
             logger.info("Round initiated with " + numPlayers + " players.");
             logger.info("Round number: " + roundNumber);
             logger.info("Minimum bet per round: " + MINIMUM_BET);
 
-            // Print the cards of the player - no need to check for face downs
             for (int i = 0; i < numPlayers; i++) {
                 System.out.println("Player " + (i + 1) + " has " + Round.players.get(i).hand.get(0).toString() + " and " + Round.players.get(i).hand.get(1).toString());
             }
 
             for (int i = 0; i < numPlayers; i++) {
                 Round.Player player = Round.players.get(i);
-                System.out.println("It is " + player.name + "'s turn.");
-                System.out.println("Current hand: " + player.hand.get(0).toString() + " and " + player.hand.get(1).toString());
-                System.out.println("Total value of hand: " + player.calculateHandValue(player.hand)[0]);
-                String choice;
-                while (true) {
-                    System.out.println("Would you like to hit or stand? (h/s)");
-                    choice = scanner.next();
-                    if (choice.equals("h")) {
-                        Round.Card newCard = Round.deck.getRandomCard();
-                        player.hand.add(newCard);
-                        System.out.println("You drew a " + newCard.toString());
-                        System.out.println("Your new hand is: " + player.hand.get(0).toString() + " and " + player.hand.get(1).toString() + " and " + player.hand.get(2).toString());
-                        System.out.println("Total value of hand: " + player.calculateHandValue(player.hand)[0] + " or " + player.calculateHandValue(player.hand)[1]);
-                    } else if (choice.equals("s")) {
-                        System.out.println("You have chosen to stand.");
-                        break;
-                    } else {
-                        System.out.println("Invalid choice.");
+                player.checkBust();
+                player.checkWin();
+                if (player.bust) {
+                    System.out.println("Player " + player.name + " has busted!");
+                } else if (player.isWinner) {
+                    System.out.println("Player " + player.name + " has won!");
+                } else {
+                    System.out.println("It is " + player.name + "'s turn.");
+                    System.out.println("Current hand: " + player.hand.get(0).toString() + " and " + player.hand.get(1).toString());
+                    // print the value of all hands
+                    for (int j = 0; j < numPlayers; j++) {
+                        System.out.println("Player " + (j + 1) + ": " + Round.players.get(j).calculateHandValue(Round.players.get(j).hand)[0] + " / " + Round.players.get(j).calculateHandValue(Round.players.get(j).hand)[1]);
+                    }
+                    System.out.println("_________________");
+                    String choice;
+                    while (true) {
+                        System.out.println("Would you like to hit or stand? (h/s)");
+                        choice = scanner.next();
+                        if (choice.equals("h") && player.calculateHandValue(player.hand)[0] < 21 && player.calculateHandValue(player.hand)[1] < 21) {
+                            Round.Card newCard = Round.deck.getRandomCardFaceUp();
+                            player.hand.add(newCard);
+                            System.out.println("You drew a " + newCard.toString());
+                            System.out.println("Your new hand is: " + player.hand.get(0).toString() + " and " + player.hand.get(1).toString() + " and " + player.hand.get(2).toString());
+                            System.out.println("Total value of hand: " + player.calculateHandValue(player.hand)[0] + " or " + player.calculateHandValue(player.hand)[1]);
+                            if (player.calculateHandValue(player.hand)[0] > 21 && player.calculateHandValue(player.hand)[1] > 21) {
+                                System.out.println("You have busted!");
+                                player.bust = true;
+                                break;
+                            } else if (player.calculateHandValue(player.hand)[0] == 21 || player.calculateHandValue(player.hand)[1] == 21) {
+                                System.out.println("You have won!");
+                                player.isWinner = true;
+                                break;
+                            }
+                        } else if (player.isWinner || player.bust) {
+                            break;
+                        } else if (choice.equals("s")) {
+                            System.out.println("You have chosen to stand.");
+                            break;
+                        } else {
+                            System.out.println("Invalid choice.");
+                        }
                     }
                 }
+
+                roundNumber++;
+
+                if (Round.banker.calculateHandValue(Round.banker.hand)[0] < 17 || Round.banker.calculateHandValue(Round.banker.hand)[1] < 17) {
+                    Round.Card newCard = Round.deck.getRandomCard();
+                    System.out.println("Banker hand value is " + Round.banker.calculateHandValue(Round.banker.hand)[0] + " or " + Round.banker.calculateHandValue(Round.banker.hand)[1]);
+                    Round.banker.hand.add(newCard);
+                    System.out.println("Banker drew a " + newCard.toString());
+                    Round.banker.printHand();
+                    System.out.println("Total value of hand: " + Round.banker.calculateHandValue(Round.banker.hand)[0] + " or " + Round.banker.calculateHandValue(Round.banker.hand)[1]);
+                } else {
+                    System.out.println("Banker hand value is " + Round.banker.calculateHandValue(Round.banker.hand)[0]);
+                }
+
+                System.out.println("Checking for players below Banker's hand value...");
             }
-
-            // flip banker's other card
-
-
-            roundNumber++;
-
-            // check if banker has a minimum of 17
-            // if not, hit
-            // if yes, stand
-            // if yes, check if banker has a blackjack
-            // if yes, check if any player has a blackjack
-            // if yes, check if any player has a higher hand value
-
-            if (Round.banker.calculateHandValue(Round.banker.hand)[0] < 17 || Round.banker.calculateHandValue(Round.banker.hand)[1] < 17) {
-                Round.Card newCard = Round.deck.getRandomCard();
-                Round.banker.hand.add(newCard);
-                System.out.println("Banker drew a " + newCard.toString());
-                Round.banker.printHand();
-                System.out.println("Total value of hand: " + Round.banker.calculateHandValue(Round.banker.hand)[0] + " or " + Round.banker.calculateHandValue(Round.banker.hand)[1]);
-            } else {
-                System.out.println("Banker hand value is " + Round.banker.calculateHandValue(Round.banker.hand)[0]);
-            }
-
-            System.out.println("Checking for players below Banker's hand value...");
         }
     }
 }

@@ -8,6 +8,7 @@ Player and Banker have been separated into their own classes - for ease of use.
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Round {
@@ -25,17 +26,10 @@ public class Round {
     public Round(int numberOfPlayers, int roundNumber, int betPerRound, ArrayList<Player> players) {
         this.roundNumber = roundNumber;
         this.numberOfPlayers = numberOfPlayers;
-        logger.info("Round initiated with " + numberOfPlayers + " players.");
         this.betPerRound = betPerRound;
-        logger.info("Round number: " + roundNumber + " And bet per round: " + betPerRound);
         banker = new Banker("Banker");
-        logger.info("Banker is " + banker.name);
-        deck = new Deck(312); // 6 decks of cards
+        deck = new Deck(312);
         Round.players = players;
-
-        System.out.println("player are: " + Round.players.get(0).name + " and " + Round.players.get(1).name);
-        // dealCardsToPlayers(gameState.DEALING, players);
-
         logger.info("Round initiated with " + numberOfPlayers + " players.");
         logger.info("Round number: " + roundNumber);
         logger.info("Minimum bet per round: " + betPerRound);
@@ -58,12 +52,11 @@ public class Round {
             logger.info("Added Card 2 to banker's hand.");
             int numberOfPlayers = players.size();
             for (int i = 0; i < numberOfPlayers; i++) {
-                players.get(i).hand.add(deck.getRandomCard());
-                players.get(i).hand.add(deck.getRandomCard());
+                players.get(i).hand.add(deck.getRandomCardFaceUp());
+                players.get(i).hand.add(deck.getRandomCardFaceUp());
             }
         }
 
-        state = gameState.HITTING;
         logger.info("Cards dealt to players and banker.");
     }
 
@@ -105,25 +98,27 @@ public class Round {
         int id;
         String name;
         int score;
-        boolean isTurn;
+        boolean bust;
+        boolean isBusted;
         int balance;
         boolean isWinner = false;
         ArrayList<Card> hand;
-        int handValue;
+        int[] handValue = new int[2];
+
 
         public Player(int id, String name) {
             this.id = id;
             this.name = name;
             this.score = 0;
-            this.isTurn = false;
+            this.bust = false;
             this.balance = 0;
             this.hand = new ArrayList<Card>();
-            this.handValue = 0;
+            this.handValue = new int[]{0, 0};
             logger.info("Player: " + name + " created with id: " + id);
         }
 
         public void fold() {
-            this.isTurn = false;
+            this.bust = false;
             logger.info("Player: " + name + " folded.");
         }
 
@@ -146,9 +141,27 @@ public class Round {
             return handValue;
         }
 
-        public void checkBust() {
-            if (this.handValue > 31) {
-                this.fold();
+        public void updateHandValue() {
+            this.handValue = calculateHandValue(this.hand);
+        }
+
+        public String checkBust() {
+            if (this.handValue[0] > 21 && this.handValue[1] > 21) {
+                this.bust = false;
+                logger.info("Player: " + name + " busted.");
+                return "Player" + this.id + "Busted";
+            } else {
+                return "";
+            }
+        }
+
+        public String checkWin() {
+            if (this.handValue[0] == 21 || this.handValue[1] == 21) {
+                this.bust = false;
+                logger.info("Player: " + name + " won.");
+                return "Player" + this.id + "Won";
+            } else {
+                return "";
             }
         }
     }
@@ -157,14 +170,14 @@ public class Round {
         String name;
         int score;
         ArrayList<Card> hand;
-        boolean isTurn;
+        boolean bust;
         int[] balance;
         boolean isWinner = false;
 
         public Banker(String name) {
             this.name = name;
             this.score = 0;
-            this.isTurn = false;
+            this.bust = false;
             this.hand = new ArrayList<Card>();
         }
 
