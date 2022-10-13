@@ -12,6 +12,7 @@ public class Implementation {
         Scanner scanner = new Scanner(System.in);
         Logger logger = Logger.getLogger(Implementation.class.getName());
 
+        // javac Implemenatation --off 2 1
         if (args.length > 0 && args[0].equals("--verbose")) {
             logger.setLevel(Level.FINE);
         } else if (args.length > 0 && args[0].equals("--no-warnings")) {
@@ -42,19 +43,32 @@ public class Implementation {
         ArrayList<Round.Player> players = new ArrayList<Round.Player>();
 
         int roundNumber = 1;
-        for (int i = 0; i < numPlayers; i++) {
-            System.out.println("Please enter the name of player " + (i + 1) + ": ");
-            String name = scanner.next();
-            System.out.println("Please enter player's buy in");
-            int balance = scanner.nextInt();
-            Round.Player player = new Round.Player(i + 1, name);
-            player.balance = balance;
-            players.add(player);
-            System.out.println("Player " + (i + 1) + " is " + player.name + " and has ID: " + player.id + " and balance: " + player.balance);
+
+        int balance;
+
+        if (args.length > 3) {
+            balance = Integer.parseInt(args[3]);
+        } else {
+            System.out.println("Enter the balance for all users: ");
+            balance = scanner.nextInt();
+        }
+
+        if (args.length > 4) {
+            for (int i = 0; i < numPlayers; i++) {
+                players.add(new Round.Player(i + 1, args[i + 4], balance));
+            }
+        } else {
+            for (int i = 0; i < numPlayers; i++) {
+                System.out.println("Please enter the name of player " + (i + 1) + ": ");
+                String name = scanner.next();
+                Round.Player player = new Round.Player(i + 1, name, balance);
+                players.add(player);
+                System.out.println("Player " + (i + 1) + " is " + player.name + " and has ID: " + player.id + " and balance: " + player.balance);
+            }
         }
 
         Round round = new Round(numPlayers, roundNumber, MINIMUM_BET, players);
-        round.dealCardsToPlayersFirstRound(Round.gameState.DEALING, players);
+        round.dealCardsToPlayers(Round.gameState.DEALING, players);
 
         while (true) {
             // empty out players and busted arraylist
@@ -106,33 +120,34 @@ public class Implementation {
                             for (Round.Player playerVar : players) {
                                 System.out.println(playerVar.isBusted + " and " + playerVar.isWinner);
                             }
-                        System.out.println("Would you like to hit or stand? (h/s)");
-                        choice = scanner.next();
-                        if (choice.equals("h")) {
-                            // get a random face up card)));
-                            Round.Card card = Round.deck.getRandomCardFaceUp();
-                            System.out.println("You drew a " + card.toString());
-                            player.hand.add(card);
-                            System.out.println("Your hand: " + player.calculateHandValue(player.hand)[0] + " / " + player.calculateHandValue(player.hand)[1]);
-                            if (player.calculateHandValue(player.hand)[0] > 21 && player.calculateHandValue(player.hand)[1] > 21) {
-                                System.out.println("\033[32m");
-                                System.out.println("You have busted!");
-                                System.out.println("\033[0m");
-                                player.isBusted = true;
+                            System.out.println("Would you like to hit or stand? (h/s)");
+                            choice = scanner.next();
+                            if (choice.equals("h")) {
+                                // get a random face up card)));
+                                Round.Card card = Round.deck.getRandomCardFaceUp();
+                                System.out.println("You drew a " + card.toString());
+                                player.hand.add(card);
+                                System.out.println("Your hand: " + player.calculateHandValue(player.hand)[0] + " / " + player.calculateHandValue(player.hand)[1]);
+                                if (player.calculateHandValue(player.hand)[0] > 21 && player.calculateHandValue(player.hand)[1] > 21) {
+                                    System.out.println("\033[32m");
+                                    System.out.println("You have busted!");
+                                    System.out.println("\033[0m");
+                                    player.isBusted = true;
+                                    break;
+                                } else if (player.calculateHandValue(player.hand)[0] == 21 || player.calculateHandValue(player.hand)[1] == 21) {
+                                    System.out.println("You have won!");
+                                    player.isWinner = true;
+                                    winners.add(player);
+                                    break;
+                                }
+                            } else if (choice.equals("s")) {
                                 break;
-                            } else if (player.calculateHandValue(player.hand)[0] == 21 || player.calculateHandValue(player.hand)[1] == 21) {
-                                System.out.println("You have won!");
-                                player.isWinner = true;
-                                winners.add(player);
-                                break;
+                            } else {
+                                System.out.println("Please enter a valid choice.");
                             }
-                        } else if (choice.equals("s")) {
-                            break;
-                        } else {
-                            System.out.println("Please enter a valid choice.");
                         }
                     }
-                }}
+                }
 
                 roundNumber++;
 

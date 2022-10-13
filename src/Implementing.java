@@ -55,7 +55,7 @@ public class Implementing {
             System.out.println("Please enter the name of player " + (i + 1) + ": ");
             String name = scanner.next();
             System.out.println("Please enter player's buy in");
-            Round.Player player = new Round.Player(i + 1, name);
+            Round.Player player = new Round.Player(i + 1, name, scanner.nextInt());
             player.balance = balance;
             players.add(player);
             System.out.println("Player " + (i + 1) + " is " + player.name + " and has ID: " + player.id + " and balance: " + player.balance);

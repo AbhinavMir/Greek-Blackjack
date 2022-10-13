@@ -107,11 +107,11 @@ public class Round {
         ArrayList<Card> hand;
         int[] handValue = new int[2];
 
-        public Player(int id, String name) {
+        public Player(int id, String name, int balance) {
             this.id = id;
             this.name = name;
             this.score = 0;
-            this.balance = 0;
+            this.balance = balance;
             this.hand = new ArrayList<Card>();
             this.handValue = new int[]{0, 0};
             this.isBusted = false;
