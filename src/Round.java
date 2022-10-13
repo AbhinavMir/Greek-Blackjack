@@ -16,19 +16,19 @@ public class Round {
     static ArrayList<Player> players;
     static Banker banker;
     static Deck deck;
+    static int pot;
     private final int betPerRound; // Strictly used to calculate bet on the pot per round
     Logger logger = Logger.getLogger(Round.class.getName());
     int numberOfPlayers;
     int roundNumber;
     private int currentPlayer = 0;
-    private int pot;
 
     public Round(int numberOfPlayers, int roundNumber, int betPerRound, ArrayList<Player> players) {
         this.roundNumber = roundNumber;
         this.numberOfPlayers = numberOfPlayers;
         this.betPerRound = betPerRound;
-        banker = new Banker("Banker");
-        deck = new Deck(312);
+        banker = new Banker("Banker", betPerRound * 3);
+        deck = new Deck(52 * 2);
         Round.players = players;
         logger.info("Round initiated with " + numberOfPlayers + " players.");
         logger.info("Round number: " + roundNumber);
@@ -39,24 +39,16 @@ public class Round {
         return players.get(currentPlayer);
     }
 
-    public void dealCardsToPlayers(gameState state, ArrayList<Player> players) {
+    public void dealCardsToPlayersFirstRound(gameState state, ArrayList<Player> players) {
         if (state == gameState.DEALING) {
-            logger.info("Dealing cards to players.");
-            Card bankerFaceDownCard = deck.getRandomCard();
-            logger.info("Banker's face down card is " + bankerFaceDownCard.toString());
             Card bankerFaceUpCard = deck.getRandomCardFaceUp();
-            logger.info("Banker's face up card is " + bankerFaceUpCard.toString());
-            banker.hand.add(bankerFaceDownCard);
-            logger.info("Added Card 1 to banker's hand.");
             banker.hand.add(bankerFaceUpCard);
-            logger.info("Added Card 2 to banker's hand.");
+            logger.info("Dealt card to Banker");
             int numberOfPlayers = players.size();
             for (int i = 0; i < numberOfPlayers; i++) {
-                players.get(i).hand.add(deck.getRandomCardFaceUp());
-                players.get(i).hand.add(deck.getRandomCardFaceUp());
+                players.get(i).hand.add(deck.getRandomCard());
             }
         }
-
         logger.info("Cards dealt to players and banker.");
     }
 
@@ -90,36 +82,29 @@ public class Round {
         FACE_DOWN, FACE_UP, INACTIVE
     }
 
-    interface ruleSet {
-    }
-
     static class Player {
         Logger logger = Logger.getLogger(Player.class.getName());
         int id;
         String name;
         int score;
-        boolean bust;
         boolean isBusted;
         int balance;
-        boolean isWinner = false;
+        boolean isWinner;
+        boolean isFolded;
         ArrayList<Card> hand;
         int[] handValue = new int[2];
-
 
         public Player(int id, String name) {
             this.id = id;
             this.name = name;
             this.score = 0;
-            this.bust = false;
             this.balance = 0;
             this.hand = new ArrayList<Card>();
             this.handValue = new int[]{0, 0};
+            this.isBusted = false;
+            this.isWinner = false;
+            this.isFolded = false;
             logger.info("Player: " + name + " created with id: " + id);
-        }
-
-        public void fold() {
-            this.bust = false;
-            logger.info("Player: " + name + " folded.");
         }
 
         public int[] calculateHandValue(ArrayList<Card> hand) {
@@ -132,53 +117,44 @@ public class Round {
                 } else if (card.getValue().equals("K") || card.getValue().equals("Q") || card.getValue().equals("J")) {
                     handValue[0] += 10;
                     handValue[1] += 10;
+                } else if (card.getValue().equals("[HIDDEN]") || card.getValue().equals("[HIDDEN]")) {
+                    // Do nothing
                 } else {
                     handValue[0] += Integer.parseInt(card.getValue());
                     handValue[1] += Integer.parseInt(card.getValue());
                 }
             }
 
+            this.handValue = handValue;
             return handValue;
         }
 
         public void updateHandValue() {
             this.handValue = calculateHandValue(this.hand);
         }
-
-        public String checkBust() {
-            if (this.handValue[0] > 21 && this.handValue[1] > 21) {
-                this.bust = false;
-                logger.info("Player: " + name + " busted.");
-                return "Player" + this.id + "Busted";
-            } else {
-                return "";
-            }
-        }
-
-        public String checkWin() {
-            if (this.handValue[0] == 21 || this.handValue[1] == 21) {
-                this.bust = false;
-                logger.info("Player: " + name + " won.");
-                return "Player" + this.id + "Won";
-            } else {
-                return "";
-            }
-        }
     }
 
     static class Banker {
+        int[] handValue = new int[2];
         String name;
         int score;
         ArrayList<Card> hand;
-        boolean bust;
-        int[] balance;
+        int balance;
         boolean isWinner = false;
 
-        public Banker(String name) {
+        public Banker(String name, int balance) {
             this.name = name;
             this.score = 0;
-            this.bust = false;
+            this.balance = balance;
             this.hand = new ArrayList<Card>();
+        }
+
+        public void updateHandValue() {
+            this.handValue = calculateHandValue(this.hand);
+        }
+
+        public void updateBalance(int amount) {
+            this.balance += amount;
         }
 
         public int[] calculateHandValue(ArrayList<Card> hand) {
@@ -201,6 +177,7 @@ public class Round {
                 }
             }
 
+            this.handValue = handValue;
             return handValue;
         }
 

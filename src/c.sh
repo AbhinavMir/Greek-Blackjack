@@ -1,5 +1,4 @@
-javac Round.java
-javac Implementation.java
-javac Main.java
-java Implementation --off 2 10
-find . -type f -path "*" -name "*.class" -exec rm -f {} \;
+javac -d bin Round.java
+javac -d bin Implementing.java
+cd bin && java Implementing --off
+find . -type f -path "./src" -name "*.class" -exec rm -f {} \;
