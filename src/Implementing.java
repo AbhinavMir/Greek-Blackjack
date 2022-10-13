@@ -7,15 +7,6 @@ import java.util.Scanner;
 
 public class Implementing {
 
-    public boolean isPlayerInTempArray(Round.Player player, ArrayList<Round.Player> tempArray) {
-        for (Round.Player p : tempArray) {
-            if (p.id == player.id) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static void main(String[] args) {
         System.out.println("STARTING...");
         ArrayList<Round.Player> winners = new ArrayList<Round.Player>();
@@ -54,7 +45,7 @@ public class Implementing {
 
         System.out.println("Enter the balance for all users: ");
         int balance = scanner.nextInt();
-        while(balance < MINIMUM_BET) {
+        while (balance < MINIMUM_BET) {
             System.out.println("Balance must be greater than minimum bet");
             balance = scanner.nextInt();
         }
@@ -86,7 +77,7 @@ public class Implementing {
             logger.info("Minimum bet per round: " + MINIMUM_BET);
 
             System.out.println("\033[33m");
-            for (int i = 0; i < numPlayers; i++) {
+            for (int i = 0; i < numPlayers - 1; i++) {
                 System.out.println(players.get(i).name + " has " + Round.players.get(i).hand.get(0).toString() + " and " + Round.players.get(i).hand.get(1).toString());
                 Round.players.get(i).updateHandValue();
                 System.out.println(players.get(i).name + " has a hand value of " + Round.players.get(i).handValue[0] + " / " + Round.players.get(i).handValue[1]);
@@ -140,6 +131,15 @@ public class Implementing {
             }
 
         }
+    }
+
+    public boolean isPlayerInTempArray(Round.Player player, ArrayList<Round.Player> tempArray) {
+        for (Round.Player p : tempArray) {
+            if (p.id == player.id) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
