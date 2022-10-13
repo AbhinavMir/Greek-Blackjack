@@ -38,25 +38,6 @@ public class Round {
     public Player getCurrentPlayer() {
         return players.get(currentPlayer);
     }
-
-    public void dealCardsToPlayersFirstRound(ArrayList<Player> players) {
-        Card card = deck.getRandomCardFaceDown();
-
-    }
-
-    public void dealCardsToPlayers(gameState state, ArrayList<Player> players) {
-        if (state == gameState.DEALING) {
-            Card bankerFaceUpCard = deck.getRandomCardFaceUp();
-            banker.hand.add(bankerFaceUpCard);
-            logger.info("Dealt card to Banker");
-            int numberOfPlayers = players.size();
-            for (int i = 0; i < numberOfPlayers; i++) {
-                players.get(i).hand.add(deck.getRandomCard());
-            }
-        }
-        logger.info("Cards dealt to players and banker.");
-    }
-
     private void nextPlayer() {
         if (currentPlayer < numberOfPlayers) {
             currentPlayer++;

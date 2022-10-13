@@ -69,12 +69,9 @@ public class Implementation {
         }
 
         Round round = new Round(numPlayers, roundNumber, MINIMUM_BET, players);
-        round.dealCardsToPlayers(players);
-
         while (true) {
-            // empty out players and busted arraylist
             busted.clear();
-            // set player.isWinner to false
+            winners.clear();
             System.out.println("\033[33m");
             logger.info("Round initiated with " + numPlayers + " players.");
             logger.info("Round number: " + roundNumber);
