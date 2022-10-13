@@ -56,6 +56,7 @@ public class Implementation {
         if (args.length > 4) {
             for (int i = 0; i < numPlayers; i++) {
                 players.add(new Round.Player(i + 1, args[i + 4], balance));
+                System.out.println(players.get(i).name);
             }
         } else {
             for (int i = 0; i < numPlayers; i++) {
@@ -68,11 +69,10 @@ public class Implementation {
         }
 
         Round round = new Round(numPlayers, roundNumber, MINIMUM_BET, players);
-        round.dealCardsToPlayers(Round.gameState.DEALING, players);
+        round.dealCardsToPlayers(players);
 
         while (true) {
             // empty out players and busted arraylist
-            players.clear();
             busted.clear();
             // set player.isWinner to false
             System.out.println("\033[33m");
@@ -81,21 +81,19 @@ public class Implementation {
             logger.info("Minimum bet per round: " + MINIMUM_BET);
 
             for (int i = 0; i < numPlayers; i++) {
-                System.out.println(players.get(i).name + " has " + Round.players.get(i).hand.get(0).toString() + " and " + Round.players.get(i).hand.get(1).toString());
+                System.out.println(players.get(i).name);
             }
             System.out.println("\033[0m");
 
             for (int i = 0; i < numPlayers; i++) {
                 Round.Player player = Round.players.get(i);
-//                player.checkBust();
-//                player.checkWin();
                 if (!player.isBusted && !player.isWinner) {
                     System.out.println("It is " + player.name + "'s turn.");
                     System.out.println("\033[30m" + "_______________" + "\033[0m\n");
                     for (int j = 0; j < numPlayers; j++) {
                         if (j != i) {
                             Round.Player otherPlayer = Round.players.get(j);
-                            System.out.println(otherPlayer.name + "'s hand: " + otherPlayer.hand.get(0).toString() + " and " + otherPlayer.hand.get(1).toString());
+                            System.out.println(otherPlayer.hand.toString());
                             System.out.println(otherPlayer.name + "'s Value: " + otherPlayer.calculateHandValue(otherPlayer.hand)[0] + " / " + otherPlayer.calculateHandValue(otherPlayer.hand)[1]);
                         }
                     }
@@ -110,7 +108,6 @@ public class Implementation {
                             for (i = 0; i < winners.size(); i++) {
                                 System.out.println(winners.get(i).name + " won");
                             }
-                            // print all the players who busted
                             for (i = 0; i < busted.size(); i++) {
                                 System.out.println(busted.get(i).name + " busted");
                             }
@@ -123,7 +120,6 @@ public class Implementation {
                             System.out.println("Would you like to hit or stand? (h/s)");
                             choice = scanner.next();
                             if (choice.equals("h")) {
-                                // get a random face up card)));
                                 Round.Card card = Round.deck.getRandomCardFaceUp();
                                 System.out.println("You drew a " + card.toString());
                                 player.hand.add(card);
@@ -152,7 +148,7 @@ public class Implementation {
                 roundNumber++;
 
                 if (Round.banker.calculateHandValue(Round.banker.hand)[0] < 17 || Round.banker.calculateHandValue(Round.banker.hand)[1] < 17) {
-                    Round.Card newCard = Round.deck.getRandomCard();
+                    Round.Card newCard = Round.deck.getRandomCardFaceUp();
                     System.out.println("Banker hand value is " + Round.banker.calculateHandValue(Round.banker.hand)[0] + " or " + Round.banker.calculateHandValue(Round.banker.hand)[1]);
                     Round.banker.hand.add(newCard);
                     System.out.println("Banker drew a " + newCard.toString());

@@ -39,17 +39,9 @@ public class Round {
         return players.get(currentPlayer);
     }
 
-    public void dealCardsToPlayersFirstRound(gameState state, ArrayList<Player> players) {
-        if (state == gameState.DEALING) {
-            Card bankerFaceUpCard = deck.getRandomCardFaceUp();
-            banker.hand.add(bankerFaceUpCard);
-            logger.info("Dealt card to Banker");
-            int numberOfPlayers = players.size();
-            for (int i = 0; i < numberOfPlayers; i++) {
-                players.get(i).hand.add(deck.getRandomCard());
-            }
-        }
-        logger.info("Cards dealt to players and banker.");
+    public void dealCardsToPlayersFirstRound(ArrayList<Player> players) {
+        Card card = deck.getRandomCardFaceDown();
+
     }
 
     public void dealCardsToPlayers(gameState state, ArrayList<Player> players) {
@@ -131,7 +123,8 @@ public class Round {
                     handValue[0] += 10;
                     handValue[1] += 10;
                 } else if (card.getValue().equals("[HIDDEN]") || card.getValue().equals("[HIDDEN]")) {
-                    // Do nothing
+                    handValue[0] += 0;
+                    handValue[1] += 0;
                 } else {
                     handValue[0] += Integer.parseInt(card.getValue());
                     handValue[1] += Integer.parseInt(card.getValue());
@@ -263,17 +256,17 @@ public class Round {
             size = 0;
         }
 
-        public Card getRandomCard() {
+        public Card getRandomCardFaceUp() {
             int randomIndex = (int) (Math.random() * cards.size());
             Card randomCard = cards.get(randomIndex);
             cards.remove(randomIndex);
             return randomCard;
         }
 
-        public Card getRandomCardFaceUp() {
+        public Card getRandomCardFaceDown() {
             int randomIndex = (int) (Math.random() * cards.size());
             Card randomCard = cards.get(randomIndex);
-            randomCard.state = CardState.FACE_UP;
+            randomCard.state = CardState.FACE_DOWN;
             return randomCard;
         }
 
