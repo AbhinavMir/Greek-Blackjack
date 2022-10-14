@@ -1,3 +1,4 @@
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,10 +24,10 @@ public class Main {
             } else if (System.getenv("DEBUGGER").equals(("INFORMATIONAL"))) {
                 logger.setLevel(Level.INFO);
             } else {
-                logger.setLevel(Level.OFF);
+                Logger.getLogger("").setLevel(Level.OFF);
             }
         } else {
-            logger.setLevel(Level.OFF);
+            Logger.getLogger("").setLevel(Level.OFF);
         }
 
 
