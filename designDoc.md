@@ -9,26 +9,20 @@ The implementation requires a variant of Blackjack called Trianta Ena. There are
 #### 1.2 Quick testing
 To make sure we can quickly iterate and set up a game, I use command line arguments. For a quick spin, you can run `./start.sh` in the source file. For fine tuning the parameter, the template is as follows.
 
-```javac Implementation --
-
-<img src = "./uml.png"/>
+```javascript
+java Main <NUMBER OF PLAYERS> <MINIMUM BET> <BALANCE FOR ALL PLAYERS> <NAME OF PLAYERS (divided by space)>
+```
 
 ## 2. Architecture
 
+<img src = "./uml.png"  style="width:400px;"/>
 
 #### 2.1 Overview
-*Provide here a descriptive overview of the software/system/application architecture.*
 
-#### 2.2 Component Diagrams
-*Provide here the diagram and a detailed description of its most valuable parts. There may be multiple diagrams. Include a description for each diagram. Subsections can be used to list components and their descriptions.*
-
-#### 2.3 Class Diagrams
-*Provide here any class diagrams needed to illustrate the application. These can be ordered by which component they construct or contribute to. If there is any ambiguity in the diagram or if any piece needs more description provide it here as well in a subsection.*
-
-#### 2.4 Sequence Diagrams
-*Provide here any sequence diagrams. If possible list the use case they contribute to or solve. Provide descriptions if possible.*
+The deck is a class with subclass card (although it is not implemented as a direct subclass). The card has multiple members - an enum for state, suit and value. An arrayList of the card results in both deck and hand - and the card is then transfered between these two for logistics. The rules are implemented over simple loops - I avoided using the `ruleSet` interface from ticTacToe since the rules are differently implemented.
 
 #### 2.5 Deployment Diagrams
+
 *Provide here the deployment diagram for the system including any information needed to describe it. Also, include any information needed to describe future scaling of the system.*
 
 #### 2.6 Other Diagrams

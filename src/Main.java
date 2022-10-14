@@ -18,7 +18,7 @@ public class Main {
 
         // check if DEBUGGER is enabled in environment
         if (System.getenv("DEBUGGER") != null) {
-            if (System.getenv("DEBUGGER").equals("true")) {
+            if (System.getenv("DEBUGGER").equals("TRUE")) {
                 logger.setLevel(Level.ALL);
             } else if (System.getenv("DEBUGGER").equals(("INFORMATIONAL"))) {
                 logger.setLevel(Level.INFO);
@@ -26,6 +26,7 @@ public class Main {
                 logger.setLevel(Level.OFF);
             }
         } else {
+            // all loggers off
             logger.setLevel(Level.OFF);
         }
 
