@@ -9,6 +9,7 @@ public class Implementation {
         System.out.println("STARTING...");
         ArrayList<Round.Player> winners = new ArrayList<Round.Player>();
         ArrayList<Round.Player> busted = new ArrayList<Round.Player>();
+        ArrayList<Round.Player> folded = new ArrayList<Round.Player>();
         Scanner scanner = new Scanner(System.in);
         Logger logger = Logger.getLogger(Implementation.class.getName());
 
@@ -68,77 +69,91 @@ public class Implementation {
 
         Round round = new Round(numPlayers, roundNumber, MINIMUM_BET, players);
         while (true) {
-            busted.clear();
-            winners.clear();
+            for (Round.Player player : players) {
+                player.hand.clear();
+            }
+            busted.clear(); // clear busted
+            winners.clear(); // clear winners
             logger.info("Round initiated with " + numPlayers + " players.");
             logger.info("Round number: " + roundNumber);
             logger.info("Minimum bet per round: " + MINIMUM_BET);
 
-            Round.banker.hand.add(Round.deck.getRandomCardFaceUp());
+            // deal cards to players
+            Round.banker.hand.add(Round.deck.getRandomCardFaceUp()); // give the banker a face up card
             for (int i = 0; i < numPlayers; i++) {
-                players.get(i).hand.add(Round.deck.getRandomCardFaceUp());
+                players.get(i).hand.add(Round.deck.getRandomCardFaceDown()); // give the players face down cards
             }
 
-            String choice, foldOrBet;
+            // initialize variables
+            String choice, foldOrBet = null;
             int bet;
+
             // First round of betting or folding - no H/S
-            for (int i = 0; i < numPlayers; i++) {
-                Round.Player player = Round.players.get(i);
-                System.out.println("\u001b[34mIt is " + player.name + "'s turn. \033[0m");
-                System.out.println("Your hand:\033[33m " + player.hand.toString() + "\033[0m");
+            for (int i = 0; i < players.size(); i++) {
+                Round.Player player = Round.players.get(i); // current player
+                System.out.println("\u001b[34mIt is " + player.name + "'s turn. \033[0m"); // print player's turn
+                System.out.println("Your hand:\033[33m " + player.hand.toString() + "\033[0m"); // print player's hand
+
+                // calculate player's hand value
                 if (player.calculateHandValue(player.hand)[0] == player.calculateHandValue(player.hand)[1]) {
                     System.out.println("Your hand value is: \033[33m" + player.calculateHandValue(player.hand)[0] + "\033[0m");
                 } else {
                     System.out.println("Your hand value: \033[33m" + player.calculateHandValue(player.hand)[0] + "\033[0m");
                 }
+
+                // switch the face up for printing and then switch it back
                 Round.Card.state = Round.CardState.FACE_UP;
                 System.out.println("Banker's hand: \033[33m" + Round.banker.hand.toString() + "\033[0m");
                 Round.Card.state = Round.CardState.FACE_DOWN;
+
+                // print player hand value
                 if (Round.banker.calculateHandValue(player.hand)[0] == Round.banker.calculateHandValue(Round.banker.hand)[1]) {
-                    System.out.println("Your hand value is: \033[33m" + Round.banker.calculateHandValue(Round.banker.hand)[0] + "\033[0m");
+                    System.out.println("Banker's hand value is: \033[33m" + Round.banker.calculateHandValue(Round.banker.hand)[0] + "\033[0m");
+                    logger.info("108");
                 } else {
-                    System.out.println("Your hand value: \033[33m" + Round.banker.calculateHandValue(Round.banker.hand)[0] + "\033[0m");
-                }
-                System.out.println("Fold or bet? (f/b)");
-                while (true) {
-                    foldOrBet = scanner.next();
-                    if (foldOrBet.equals("f") || foldOrBet.equals("b")) {
-                        break;
-                    } else {
-                        System.out.println("Please enter either f or b.");
-                    }
+                    System.out.println("Banker's hand value is: \033[33m" + Round.banker.calculateHandValue(Round.banker.hand)[0] + "\033[0m");
+                    logger.info("111");
                 }
 
+                // A loop for correct fold or bet input
+                System.out.println("\033[42mEvery player is one face down card, the Banker is dealt a face up card\033[0m");
+                System.out.println("Fold or bet? (f/b)");
+                foldOrBet = scanner.next();
+
+                // if player folds, switch bool, else ask bet and subtract
                 if (foldOrBet.equals("b")) {
                     System.out.println("How much would you like to bet?");
                     bet = scanner.nextInt();
                     players.get(i).balance -= bet;
                     Round.pot += players.get(i).balance;
-                    System.out.println("You have bet\033]33m " + bet + "\033]0m and your balance is now " + players.get(i).balance);
+                    System.out.println("You have bet\033[33m " + bet + "\033[0m and your balance is now " + players.get(i).balance);
                 } else {
                     System.out.println("You folded.");
+                    folded.add(player);
                     player.isFolded = true;
-                    break;
                 }
             }
 
+            // Second round of betting or folding - with H/S
             for (int i = 0; i < numPlayers; i++) {
                 Round.Player player = Round.players.get(i);
                 if (player.isFolded) {
                     continue;
                 } else {
                     if (!player.isBusted && !player.isWinner) {
-                        System.out.println("\u001b[34mIt is " + player.name + "'s turn. \033[0m");
+                        System.out.println("\u001b[33mIt is " + player.name + "'s turn. \033[0m");
                         player.hand.add(Round.deck.getRandomCardFaceUp());
                         player.hand.add(Round.deck.getRandomCardFaceUp());
                         System.out.println("Your hand:\033[33m " + player.hand.toString() + "\033[0m");
                         if (player.calculateHandValue(player.hand)[0] == player.calculateHandValue(player.hand)[1]) {
-                            System.out.println("Your hand value is: " + player.calculateHandValue(player.hand)[0]);
+                            System.out.println("Your hand value is: \033[33m" + player.calculateHandValue(player.hand)[0] + "\033[0m");
                         } else {
-                            System.out.println("Your hand value is: " + player.calculateHandValue(player.hand)[0] + " / " + player.calculateHandValue(player.hand)[1]);
+                            System.out.println("Your hand value: \033[33m" + player.calculateHandValue(player.hand)[0] +" / " + player.calculateHandValue(player.hand)[1] + "\033[0m");
                         }
 
-                        System.out.println("Every player is dealt a card, and the banker is dealt a card face up.");
+                        System.out.println("\33[36mEvery player is dealt two more cards\33[0m");
+
+                        // Now let's go into H/S mode
                         while (true) {
                             System.out.println("Would you like to hit or stand? (h/s)");
                             while (true) {
@@ -203,7 +218,21 @@ public class Implementation {
             }
 
             for (int i = 0; i < numPlayers; i++) {
+                
+            }
 
+            for (int i = 0; i < folded.size(); i++) {
+                System.out.println(folded.get(i).name + " folded.");
+            }
+
+            System.out.println("Continue another round? (y/n)");
+            while (true) {
+                choice = scanner.next();
+                if (choice.equals("y") || choice.equals("n")) {
+                    break;
+                } else {
+                    System.out.println("Please enter y or n.");
+                }
             }
         }
     }

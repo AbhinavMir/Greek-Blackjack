@@ -95,6 +95,37 @@ public class Round {
             logger.info("Player: " + name + " created with id: " + id);
         }
 
+        public void transferBalance(int amount, Player player) {
+            this.balance -= amount;
+            player.balance += amount;
+            logger.info("Transferred " + amount + " from " + this.name + " to " + player.name);
+        }
+
+        public void transferToBanker(int amount) {
+            this.balance -= amount;
+            banker.balance += amount;
+            logger.info("Transferred " + amount + " from " + this.name + " to " + banker.name);
+        }
+
+        public void flipHand() {
+            for (Card card : hand) {
+                card.flipCard();
+            }
+        }
+
+        public void allCardsFaceUp(ArrayList<Card> handThis)
+        {
+            for (Card card : handThis) {
+                card.state = CardState.FACE_UP;
+            }
+        }
+
+        public void allCardsFaceUp() {
+            for (Card card : hand) {
+                card.flipCard();
+            }
+        }
+
         public int[] calculateHandValue(ArrayList<Card> hand) {
             int[] handValue = new int[2];
             for (Card card : hand) {
@@ -116,7 +147,6 @@ public class Round {
                 Card.state = CardState.FACE_DOWN;
             }
 
-            this.handValue = handValue;
             return handValue;
         }
 
@@ -214,6 +244,14 @@ public class Round {
             state = CardState.FACE_DOWN;
         }
 
+        public void flipCard() {
+            if (state == CardState.FACE_UP) {
+                state = CardState.FACE_DOWN;
+            } else {
+                state = CardState.FACE_UP;
+            }
+        }
+
         public String printCard(Card card) {
             // check if card is face down
             if (state == CardState.FACE_DOWN) {
@@ -231,6 +269,11 @@ public class Round {
             }
         }
 
+        public String getSuitNormal()
+        {
+            return suit;
+        }
+
         public String getValue() {
             if (state == CardState.FACE_DOWN) {
                 return "[HIDDEN]";
@@ -239,12 +282,17 @@ public class Round {
             }
         }
 
+        public String getValueNormal()
+        {
+            return value;
+        }
+
         public CardState getState() {
             return state;
         }
 
         public String toString() {
-            return String.format("%s of %s", getValue(), getSuit());
+            return String.format("%s of %s", getValueNormal(), getSuitNormal());
         }
     }
 
