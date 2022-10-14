@@ -138,6 +138,24 @@ public class Implementation {
                 }
             }
 
+            for (int i = 0; i < numPlayers; i++) {
+                Round.Player player = Round.players.get(i);
+                player.hand.add(Round.deck.getRandomCardFaceUp());
+                player.hand.add(Round.deck.getRandomCardFaceUp());
+            }
+
+            System.out.println("Everyone's Hand: ");
+            for (int i = 0; i < numPlayers; i++) {
+                Round.Player player = Round.players.get(i);
+                System.out.println("\33[42m"+player.name + "'s hand: \33[0m");
+                // print all cards that are face up
+                StringBuilder sb = new StringBuilder();
+                for (int j = 1; j < player.hand.size(); j++) {
+                    sb.append(player.hand.get(j).toString() + ", ");
+                }
+                System.out.println(sb.toString());
+            }
+
             // Second round of betting or folding - with H/S
             for (int i = 0; i < numPlayers; i++) {
                 Round.Player player = Round.players.get(i);
@@ -146,9 +164,7 @@ public class Implementation {
                 } else {
                     if (!player.isBusted && !player.isWinner) {
                         System.out.println("\u001b[33mIt is " + player.name + "'s turn. \033[0m");
-                        player.hand.add(Round.deck.getRandomCardFaceUp());
-                        player.hand.add(Round.deck.getRandomCardFaceUp());
-                        System.out.println("Your hand:\033[33m " + player.hand.toString() + "\033[0m");
+
                         if (player.calculateHandValue(player.hand)[0] == player.calculateHandValue(player.hand)[1]) {
                             System.out.println("Your hand value is: \033[33m" + player.calculateHandValue(player.hand)[0] + "\033[0m");
                         } else {
