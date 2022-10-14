@@ -73,6 +73,7 @@ public class Round {
         int id;
         String name;
         int score;
+        boolean isFolder;
         boolean isBusted;
         int balance;
         boolean isWinner;
@@ -180,12 +181,12 @@ public class Round {
     }
 
     // create a card class
-    public class Card {
+    public static class Card {
         public static final int MAX_NUMBER_OF_PLAYERS = 8;
         public static final int MIN_NUMBER_OF_PLAYERS = 2;
         private final String suit;
         private final String value;
-        public CardState state;
+        public static CardState state;
         Player owner;
 
         public Card(String suit, String value) {
@@ -240,6 +241,7 @@ public class Round {
         public Card getRandomCardFaceUp() {
             int randomIndex = (int) (Math.random() * cards.size());
             Card randomCard = cards.get(randomIndex);
+            randomCard.state = CardState.FACE_UP;
             cards.remove(randomIndex);
             return randomCard;
         }
