@@ -84,6 +84,22 @@ public class Implementation {
             // First round of betting or folding - no H/S
             for (int i = 0; i < numPlayers; i++) {
                 Round.Player player = Round.players.get(i);
+                System.out.println("\u001b[34mIt is " + player.name + "'s turn. \033[0m");
+                System.out.println("Your hand:\033[33m " + player.hand.toString() + "\033[0m");
+                if (player.calculateHandValue(player.hand)[0] == player.calculateHandValue(player.hand)[1]) {
+                    System.out.println("Your hand value is: \033[33m" + player.calculateHandValue(player.hand)[0] + "\033[0m");
+                } else {
+                    System.out.println("Your hand value: \033[33m" + player.calculateHandValue(player.hand)[0] + "\033[0m");
+                }
+                Round.Card.state = Round.CardState.FACE_UP;
+                System.out.println("Banker's hand: \033[33m" + Round.banker.hand.toString() + "\033[0m");
+                Round.Card.state = Round.CardState.FACE_DOWN;
+                if (Round.banker.calculateHandValue(player.hand)[0] == Round.banker.calculateHandValue(Round.banker.hand)[1]) {
+                    System.out.println("Your hand value is: \033[33m" + Round.banker.calculateHandValue(Round.banker.hand)[0] + "\033[0m");
+                } else {
+                    System.out.println("Your hand value: \033[33m" + Round.banker.calculateHandValue(Round.banker.hand)[0] + "\033[0m");
+                }
+                System.out.println("Fold or bet? (f/b)");
                 while (true) {
                     foldOrBet = scanner.next();
                     if (foldOrBet.equals("f") || foldOrBet.equals("b")) {
@@ -108,58 +124,64 @@ public class Implementation {
 
             for (int i = 0; i < numPlayers; i++) {
                 Round.Player player = Round.players.get(i);
-                if (!player.isBusted && !player.isWinner) {
-                    System.out.println("\u001b[34mIt is " + player.name + "'s turn. \033[0m");
-
-                    System.out.println("Your hand:\033[33m " + player.hand.toString() + "\033[0m");
-                    if (player.calculateHandValue(player.hand)[0] == player.calculateHandValue(player.hand)[1]) {
-                        System.out.println("Your hand value is: " + player.calculateHandValue(player.hand)[0]);
-                    } else {
-                        System.out.println("Your hand value is: " + player.calculateHandValue(player.hand)[0] + " / " + player.calculateHandValue(player.hand)[1]);
-                    }
-
-                    System.out.println("Every player is dealt a card, and the banker is dealt a card face up.");
-                    while (true) {
-                        System.out.println("Would you like to hit or stand? (h/s)");
-                        while (true) {
-                            choice = scanner.next();
-                            if (choice.equals("h") || choice.equals("s")) {
-                                break;
-                            } else {
-                                System.out.println("Please enter h or s.");
-                            }
-                        }
-
-
-                        if (choice.equals("h")) {
-                            Round.Card card = Round.deck.getRandomCardFaceDown();
-                            Round.Card.state = Round.CardState.FACE_UP;
-                            System.out.println("You drew a \033[32m" + card.toString() + "\033[0m");
-                            player.hand.add(card);
-
-                            if (player.calculateHandValue(player.hand)[0] == player.calculateHandValue(player.hand)[1]) {
-                                System.out.println("Your hand value is: " + player.calculateHandValue(player.hand)[0]);
-                            } else {
-                                System.out.println("Your hand value is: " + player.calculateHandValue(player.hand)[0] + " / " + player.calculateHandValue(player.hand)[1]);
-                            }
-                            if (player.calculateHandValue(player.hand)[0] > 31 && player.calculateHandValue(player.hand)[1] > 31) {
-                                System.out.println("\033[33m");
-                                System.out.println("You have busted!");
-                                System.out.println("\033[0m");
-                                player.isBusted = true;
-                                break;
-                            } else if (player.calculateHandValue(player.hand)[0] == 31 || player.calculateHandValue(player.hand)[1] == 31) {
-                                System.out.println("\033[33m" + "You have won!" + "\033[0m");
-                                player.isWinner = true;
-                                winners.add(player);
-                                break;
-                            }
-                        } else if (choice.equals("s")) {
-                            break;
+                if (player.isFolded) {
+                    continue;
+                } else {
+                    if (!player.isBusted && !player.isWinner) {
+                        System.out.println("\u001b[34mIt is " + player.name + "'s turn. \033[0m");
+                        player.hand.add(Round.deck.getRandomCardFaceUp());
+                        player.hand.add(Round.deck.getRandomCardFaceUp());
+                        System.out.println("Your hand:\033[33m " + player.hand.toString() + "\033[0m");
+                        if (player.calculateHandValue(player.hand)[0] == player.calculateHandValue(player.hand)[1]) {
+                            System.out.println("Your hand value is: " + player.calculateHandValue(player.hand)[0]);
                         } else {
-                            System.out.println("Please enter a valid choice.");
+                            System.out.println("Your hand value is: " + player.calculateHandValue(player.hand)[0] + " / " + player.calculateHandValue(player.hand)[1]);
                         }
 
+                        System.out.println("Every player is dealt a card, and the banker is dealt a card face up.");
+                        while (true) {
+                            System.out.println("Would you like to hit or stand? (h/s)");
+                            while (true) {
+                                choice = scanner.next();
+                                if (choice.equals("h") || choice.equals("s")) {
+                                    break;
+                                } else {
+                                    System.out.println("Please enter h or s.");
+                                }
+                            }
+
+
+                            if (choice.equals("h")) {
+                                Round.Card card = Round.deck.getRandomCardFaceDown();
+                                Round.Card.state = Round.CardState.FACE_DOWN;
+                                System.out.println("You drew a \033[32m" + card.toString() + "\033[0m");
+                                player.hand.add(card);
+
+                                if (player.calculateHandValue(player.hand)[0] == player.calculateHandValue(player.hand)[1]) {
+                                    System.out.println("Your hand value is: " + player.calculateHandValue(player.hand)[0]);
+                                } else {
+                                    System.out.println("Your hand value is: " + player.calculateHandValue(player.hand)[0] + " / " + player.calculateHandValue(player.hand)[1]);
+                                }
+                                if (player.calculateHandValue(player.hand)[0] > 31 && player.calculateHandValue(player.hand)[1] > 31) {
+                                    System.out.println("\033[33m");
+                                    System.out.println("You have busted!");
+                                    System.out.println("\033[0m");
+                                    player.isBusted = true;
+                                    busted.add(player);
+                                    break;
+                                } else if (player.calculateHandValue(player.hand)[0] == 31 || player.calculateHandValue(player.hand)[1] == 31) {
+                                    System.out.println("\033[33m" + "You have won!" + "\033[0m");
+                                    player.isWinner = true;
+                                    winners.add(player);
+                                    break;
+                                }
+                            } else if (choice.equals("s")) {
+                                break;
+                            } else {
+                                System.out.println("Please enter a valid choice.");
+                            }
+
+                        }
                     }
                 }
 
@@ -177,6 +199,7 @@ public class Implementation {
                 }
 
                 System.out.println("Checking for players below Banker's hand value...");
+
             }
 
             for (int i = 0; i < numPlayers; i++) {
