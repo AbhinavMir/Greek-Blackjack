@@ -79,6 +79,7 @@ public class Round {
         int balance;
         boolean isWinner;
         boolean isFolded;
+        int bet;
         ArrayList<Card> hand;
         int[] handValue = new int[2];
 
@@ -93,6 +94,15 @@ public class Round {
             this.isWinner = false;
             this.isFolded = false;
             logger.info("Player: " + name + " created with id: " + id);
+        }
+
+        public void reset() {
+            this.isBusted = false;
+            this.isWinner = false;
+            this.isFolded = false;
+            this.bet = 0;
+            this.hand = new ArrayList<>();
+            this.handValue = new int[2];
         }
 
         public void transferBalance(int amount, Player player) {
@@ -113,10 +123,9 @@ public class Round {
             }
         }
 
-        public void allCardsFaceUp(ArrayList<Card> handThis)
-        {
+        public void allCardsFaceUp(ArrayList<Card> handThis) {
             for (Card card : handThis) {
-                card.state = CardState.FACE_UP;
+                Card.state = CardState.FACE_UP;
             }
         }
 
@@ -269,8 +278,7 @@ public class Round {
             }
         }
 
-        public String getSuitNormal()
-        {
+        public String getSuitNormal() {
             return suit;
         }
 
@@ -282,8 +290,7 @@ public class Round {
             }
         }
 
-        public String getValueNormal()
-        {
+        public String getValueNormal() {
             return value;
         }
 
