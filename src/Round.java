@@ -39,32 +39,6 @@ public class Round {
         return players.get(currentPlayer);
     }
 
-    public void dealCardsToPlayersFirstRound(gameState state, ArrayList<Player> players) {
-        if (state == gameState.DEALING) {
-            Card bankerFaceUpCard = deck.getRandomCardFaceUp();
-            banker.hand.add(bankerFaceUpCard);
-            logger.info("Dealt card to Banker");
-            int numberOfPlayers = players.size();
-            for (int i = 0; i < numberOfPlayers; i++) {
-                players.get(i).hand.add(deck.getRandomCard());
-            }
-        }
-        logger.info("Cards dealt to players and banker.");
-    }
-
-    public void dealCardsToPlayers(gameState state, ArrayList<Player> players) {
-        if (state == gameState.DEALING) {
-            Card bankerFaceUpCard = deck.getRandomCardFaceUp();
-            banker.hand.add(bankerFaceUpCard);
-            logger.info("Dealt card to Banker");
-            int numberOfPlayers = players.size();
-            for (int i = 0; i < numberOfPlayers; i++) {
-                players.get(i).hand.add(deck.getRandomCard());
-            }
-        }
-        logger.info("Cards dealt to players and banker.");
-    }
-
     private void nextPlayer() {
         if (currentPlayer < numberOfPlayers) {
             currentPlayer++;
@@ -100,18 +74,20 @@ public class Round {
         int id;
         String name;
         int score;
+        boolean isFolder;
         boolean isBusted;
         int balance;
         boolean isWinner;
         boolean isFolded;
+        int bet;
         ArrayList<Card> hand;
         int[] handValue = new int[2];
 
-        public Player(int id, String name) {
+        public Player(int id, String name, int balance) {
             this.id = id;
             this.name = name;
             this.score = 0;
-            this.balance = 0;
+            this.balance = balance;
             this.hand = new ArrayList<Card>();
             this.handValue = new int[]{0, 0};
             this.isBusted = false;
@@ -120,9 +96,49 @@ public class Round {
             logger.info("Player: " + name + " created with id: " + id);
         }
 
+        public void reset() {
+            this.isBusted = false;
+            this.isWinner = false;
+            this.isFolded = false;
+            this.bet = 0;
+            this.hand = new ArrayList<>();
+            this.handValue = new int[2];
+        }
+
+        public void transferBalance(int amount, Player player) {
+            this.balance -= amount;
+            player.balance += amount;
+            logger.info("Transferred " + amount + " from " + this.name + " to " + player.name);
+        }
+
+        public void transferToBanker(int amount) {
+            this.balance -= amount;
+            banker.balance += amount;
+            logger.info("Transferred " + amount + " from " + this.name + " to " + banker.name);
+        }
+
+        public void flipHand() {
+            for (Card card : hand) {
+                card.flipCard();
+            }
+        }
+
+        public void allCardsFaceUp(ArrayList<Card> handThis) {
+            for (Card card : handThis) {
+                Card.state = CardState.FACE_UP;
+            }
+        }
+
+        public void allCardsFaceUp() {
+            for (Card card : hand) {
+                card.flipCard();
+            }
+        }
+
         public int[] calculateHandValue(ArrayList<Card> hand) {
             int[] handValue = new int[2];
             for (Card card : hand) {
+                Card.state = CardState.FACE_UP;
                 // card.value is a String, so convert it if it is a number, if ace then 1 and 11, if K, Q, J then 10
                 if (card.getValue().equals("A")) {
                     handValue[0] += 1;
@@ -131,14 +147,15 @@ public class Round {
                     handValue[0] += 10;
                     handValue[1] += 10;
                 } else if (card.getValue().equals("[HIDDEN]") || card.getValue().equals("[HIDDEN]")) {
-                    // Do nothing
+                    handValue[0] += 0;
+                    handValue[1] += 0;
                 } else {
                     handValue[0] += Integer.parseInt(card.getValue());
                     handValue[1] += Integer.parseInt(card.getValue());
                 }
+                Card.state = CardState.FACE_DOWN;
             }
 
-            this.handValue = handValue;
             return handValue;
         }
 
@@ -172,6 +189,15 @@ public class Round {
 
         public int[] calculateHandValue(ArrayList<Card> hand) {
             // calculate value if face up
+            // flip the card
+            for (Card card : hand) {
+                if (Card.state == CardState.FACE_UP) {
+                    Card.state = CardState.FACE_DOWN;
+                } else {
+                    Card.state = CardState.FACE_UP;
+                }
+            }
+
             int[] handValue = new int[2];
             for (Card card : hand) {
                 // card.value is a String, so convert it if it is a number, if ace then 1 and 11, if K, Q, J then 10
@@ -190,6 +216,13 @@ public class Round {
                 }
             }
 
+            for (Card card : hand) {
+                if (Card.state == CardState.FACE_UP) {
+                    Card.state = CardState.FACE_DOWN;
+                } else {
+                    Card.state = CardState.FACE_UP;
+                }
+            }
             this.handValue = handValue;
             return handValue;
         }
@@ -206,23 +239,31 @@ public class Round {
     }
 
     // create a card class
-    public class Card {
+    public static class Card {
         public static final int MAX_NUMBER_OF_PLAYERS = 8;
         public static final int MIN_NUMBER_OF_PLAYERS = 2;
+        public static CardState state;
         private final String suit;
         private final String value;
-        public CardState state;
         Player owner;
 
         public Card(String suit, String value) {
             this.suit = suit;
             this.value = value;
-            this.state = CardState.FACE_DOWN;
+            state = CardState.FACE_DOWN;
+        }
+
+        public void flipCard() {
+            if (state == CardState.FACE_UP) {
+                state = CardState.FACE_DOWN;
+            } else {
+                state = CardState.FACE_UP;
+            }
         }
 
         public String printCard(Card card) {
             // check if card is face down
-            if (card.state == CardState.FACE_DOWN) {
+            if (state == CardState.FACE_DOWN) {
                 return "[HIDDEN]";
             } else {
                 return card.suit + " " + card.value;
@@ -230,19 +271,27 @@ public class Round {
         }
 
         public String getSuit() {
-            if (this.state == CardState.FACE_DOWN) {
+            if (state == CardState.FACE_DOWN) {
                 return "[HIDDEN]";
             } else {
                 return suit;
             }
         }
 
+        public String getSuitNormal() {
+            return suit;
+        }
+
         public String getValue() {
-            if (this.state == CardState.FACE_DOWN) {
+            if (state == CardState.FACE_DOWN) {
                 return "[HIDDEN]";
             } else {
                 return value;
             }
+        }
+
+        public String getValueNormal() {
+            return value;
         }
 
         public CardState getState() {
@@ -250,7 +299,7 @@ public class Round {
         }
 
         public String toString() {
-            return String.format("%s of %s", getValue(), getSuit());
+            return String.format("%s of %s", getValueNormal(), getSuitNormal());
         }
     }
 
@@ -263,17 +312,18 @@ public class Round {
             size = 0;
         }
 
-        public Card getRandomCard() {
+        public Card getRandomCardFaceUp() {
             int randomIndex = (int) (Math.random() * cards.size());
             Card randomCard = cards.get(randomIndex);
+            Card.state = CardState.FACE_UP;
             cards.remove(randomIndex);
             return randomCard;
         }
 
-        public Card getRandomCardFaceUp() {
+        public Card getRandomCardFaceDown() {
             int randomIndex = (int) (Math.random() * cards.size());
             Card randomCard = cards.get(randomIndex);
-            randomCard.state = CardState.FACE_UP;
+            Card.state = CardState.FACE_DOWN;
             return randomCard;
         }
 
