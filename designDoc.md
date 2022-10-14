@@ -7,7 +7,11 @@
 The implementation requires a variant of Blackjack called Trianta Ena. There are some changes in rules and card distribution method. 
 
 #### 1.2 Quick testing
-To make sure the environment 
+To make sure we can quickly iterate and set up a game, I use command line arguments. For a quick spin, you can run `./start.sh` in the source file. For fine tuning the parameter, the template is as follows.
+
+```javac Implementation --
+
+<img src = "./uml.png"/>
 
 ## 2. Architecture
 
