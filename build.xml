@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
    <project name="BlackJack" default="info">
-   target name="compile">
+   <target name="compile">
         <javac srcdir="src" destdir="src/build"/>
     </target>
 </project>
