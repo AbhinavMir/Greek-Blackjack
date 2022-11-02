@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+   <project name="BlackJack" default="info">
+   <target name="info">
+      <echo>Using Apache Ant...</echo>
+   </target>
+
+   <target name="build">
+        <mkdir dir="build"/>
+        <javac srcdir="src" destdir="build"/>
+        <jar jarfile="build/BlackJack.jar" basedir="."/>
+    </target>
+
+    <target name="run" depends="build">
+        <java jar="build/BlackJack.jar" fork="true"/>
+    </target>
+</project>
