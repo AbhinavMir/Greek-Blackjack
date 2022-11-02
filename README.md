@@ -1,16 +1,16 @@
 # Java Blackjack
 
 ## Files
----------------------------------------------------------------------------
+
 - Main.java
 - Round.java
 
 ## Notes
----------------------------------------------------------------------------
+
 You can quickly run the program by running `./misc/start.sh`.
 
 ## How to compile and run
----------------------------------------------------------------------------
+
 1. Navigate to the directory "pa2" after unzipping the files
 2. Run the following instructions:
    ```shell
@@ -27,7 +27,7 @@ The implementation requires a variant of Blackjack called Trianta Ena. There are
 #### 1.2 Quick testing
 To make sure we can quickly iterate and set up a game, I use command line arguments. For a quick spin, you can run `./start.sh` in the source file. For fine tuning the parameter, the template is as follows.
 
-```javascript
+```shell
 java Main <NUMBER OF PLAYERS> <MINIMUM BET> <BALANCE FOR ALL PLAYERS> <NAME OF PLAYERS (divided by space)>
 ```
 
@@ -54,7 +54,7 @@ The player here has all the information and choose to play or fold. Once they de
 Now the players can choose to hit or stand. The rules apply. Winners get 2x the amount they bet, losers get nothing. Banker rules apply as usual. You can then choose to play another round.
 
 ## Input/Output Example
----------------------------------------------------------------------------
+
 ```shell
 STARTING...
 Enter number of players:
