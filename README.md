@@ -11,7 +11,7 @@ You can quickly run the program by running `./misc/start.sh`.
 
 ## How to compile and run
 
-1. Navigate to the directory "pa2" after unzipping the files
+1. Navigate to the directory "pa2" after unzipping the files (pa2 = personal assistant 2 - redid a main helper code and forgot to rename a bunch of things, have to cleanup!)
 2. Run the following instructions:
    ```shell
    mkdir bin && javac -d bin *.java
