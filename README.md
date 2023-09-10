@@ -15,6 +15,8 @@ Below is a brief description of each file and its role in the game system:
 - **PrettyPrint.java:** A utility class for beautified printing outputs, enhancing the visual representation.
 - **itemClass.java:** Manages item storage and inventory, built with extendibility in mind.
 
+![UML diagram discussing topics above](/misc/uml.png)
+
 ### Detailed Descriptions
 
 #### Maps
