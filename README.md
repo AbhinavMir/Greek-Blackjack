@@ -1,4 +1,4 @@
-> **Note:** The server code should maintain a locked instance of the CSV file to monitor movements and other game events, updating after each input for real-time synchronization.
+> **Note:** The server code should maintain a locked instance of the CSV file to monitor movements and other game events, updating after each input for real-time synchronization -  I will be migrating to a proper database soon!
 
 ## Files
 
